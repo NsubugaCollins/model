@@ -12,10 +12,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
-try:
-    import dj_database_url
-except Exception:
-    dj_database_url = None
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -95,15 +91,10 @@ DATABASES = {
 }
 
 # If a DATABASE_URL is provided (e.g. from Azure), parse it with dj_database_url
-DATABASE_URL = os.environ.get('DATABASE_URL')
-if DATABASE_URL and dj_database_url:
-    DATABASES = {
-        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
-    }
-elif DATABASE_URL and not dj_database_url:
-    # dj_database_url is not available in this Python environment; fall back to sqlite and warn
-    import sys
-    print('WARNING: DATABASE_URL provided but dj_database_url is not installed. Using default sqlite.', file=sys.stderr)
+# Note: This project uses local SQLite by default for deployments that
+# don't provide a DATABASE_URL (e.g. Streamlit Community Cloud). If you
+# later want to use an external database, set DATABASE_URL in the
+# environment and update settings accordingly.
 
 
 # Password validation
