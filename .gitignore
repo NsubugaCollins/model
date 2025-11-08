@@ -1,0 +1,41 @@
+# Python/Django
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Virtual environments
+venv/
+ENV/
+env/
+/.venv/
+
+# IDEs
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Django
+*.sqlite3
+/staticfiles/
+/media/
+media/
+
+# Logs
+*.log
+
+# Env
+.env
+
+# Byte-compiled / wheel
+build/
+dist/
+*.egg-info/
+
+# Model caches and large downloads
+.hf/
+cache/

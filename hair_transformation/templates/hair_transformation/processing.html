@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <div class="loading-spinner" id="loadingSpinner">
+                        <div class="row align-items-center">
+                            <div class="col-md-6 text-center">
+                                <img src="{{ original_image_url }}" alt="Uploaded image" class="img-fluid rounded" style="max-height:300px; object-fit:contain;" />
+                            </div>
+                            <div class="col-md-6 text-center">
+                                <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <h3 class="mt-3">Please wait — hairstyles are being generated</h3>
+                                <p class="text-muted">This may take a couple of minutes. You can leave this tab open; results will appear automatically.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="progress mt-4">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 role="progressbar" style="width: 100%"></div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <div class="row text-start">
+                                <div class="col-md-6">
+                                    <p><i class="fas fa-check text-success"></i> Image uploaded</p>
+                                    <p><i class="fas fa-sync-alt text-primary"></i> Analyzing face features</p>
+                                    <p><i class="fas fa-sync-alt text-primary"></i> Detecting skin tone</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><i class="fas fa-sync-alt text-primary"></i> Segmenting hair</p>
+                                    <p><i class="fas fa-sync-alt text-primary"></i> Generating transformations</p>
+                                    <p><i class="fas fa-hourglass text-warning"></i> Finalizing results</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+    $(document).ready(function() {
+        // Show loading spinner
+        $('#loadingSpinner').show();
+
+        const sessionId = '{{ session_id }}';
+        const statusUrl = "{% url 'ajax_status' session_id %}";
+        const resultsUrl = "{% url 'results_view' session_id %}";
+
+        // Poll for results
+        function checkStatus() {
+            $.get(statusUrl, function(data) {
+                if (data.processed) {
+                    window.location.href = resultsUrl;
+                } else {
+                    setTimeout(checkStatus, 3000); // Check every 3 seconds
+                }
+            }).fail(function() {
+                setTimeout(checkStatus, 3000);
+            });
+        }
+
+        // Start polling
+        setTimeout(checkStatus, 1500);
+    });
+    </script>
+{% endblock %}

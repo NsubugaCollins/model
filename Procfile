@@ -1,0 +1,1 @@
+web: gunicorn hair_project.wsgi --log-file -
