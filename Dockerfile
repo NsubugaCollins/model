@@ -7,20 +7,21 @@ ENV PYTHONUNBUFFERED=1
 # Set work directory
 WORKDIR /app
 
-# Install system dependencies (for opencv, torch, etc.)
+# Install system dependencies (for opencv, torch, transformers)
 RUN apt-get update && apt-get install -y \
+    build-essential \
     libgl1 \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install
+# Copy requirements and install Python deps
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the project
+# Copy all project files
 COPY . .
 
-# Expose port 8000 for Railway
+# Expose the port used by Railway
 EXPOSE 8000
 
 # Start Django using gunicorn
