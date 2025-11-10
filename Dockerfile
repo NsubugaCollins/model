@@ -1,33 +1,27 @@
-# 1. Use official Python image
+# Use Python 3.10 base image
 FROM python:3.10-slim
 
-# 2. Environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+# Prevent Python from buffering stdout/stderr
+ENV PYTHONUNBUFFERED=1
 
-# 3. Set working directory
+# Set work directory
 WORKDIR /app
 
-# 4. Install system dependencies
+# Install system dependencies (for opencv, torch, etc.)
 RUN apt-get update && apt-get install -y \
-    build-essential \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# 5. Copy requirements.txt and install Python dependencies
+# Copy requirements and install
 COPY requirements.txt .
-RUN pip install --upgrade pip setuptools wheel
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# 6. Copy the entire project into the container
+# Copy the rest of the project
 COPY . .
 
-# 7. Collect static files
-RUN python manage.py collectstatic --noinput
+# Expose port 8000 for Railway
+EXPOSE 8000
 
-# 8. Expose port 8080 (used by Railway)
-EXPOSE 8080
-
-# 9. Start Django with Gunicorn
-CMD ["gunicorn", "hair_project.wsgi:application", "--bind", "0.0.0.0:8080"]
+# Start Django using gunicorn
+CMD ["gunicorn", "hair_project.wsgi:application", "--bind", "0.0.0.0:8000"]
