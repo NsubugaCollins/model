@@ -27,8 +27,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-qgzct9oe9t2=3@1#u9gb2
 DEBUG = os.environ.get('DEBUG', 'True').lower() in ('1', 'true', 'yes')
 
 # Allow hosts from env or default to local/localhost
-#ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',') if os.environ.get('ALLOWED_HOSTS') else ['*']
-ALLOWED_HOSTS = [os.environ.get("RAILWAY_STATIC_URL", "*")]
+ALLOWED_HOSTS = ['*']
+
 
 
 # Application definition
@@ -133,6 +133,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
