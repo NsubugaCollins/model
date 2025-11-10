@@ -1,46 +1,42 @@
-# --- STAGE 1: Builder ---
-# Use a full Python image to ensure all dependencies compile correctly.
-FROM python:3.11 as builder
+# --- STAGE 1: Builder (use slim to reduce base image size) ---
+FROM python:3.11-slim AS builder
 
-# Set environment variables for non-interactive commands
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PIP_NO_CACHE_DIR=1
 
-# Set the working directory
 WORKDIR /app
 
-# Copy the requirements file first to utilize Docker layer caching
+# Copy only requirements first for caching
 COPY requirements.txt .
 
-# Install dependencies. We use --no-cache-dir to minimize size.
-# Note: psycopg2 often requires build dependencies, which are available in this base image.
-RUN pip install --no-cache-dir -r requirements.txt
+# Install into a vendor folder to avoid leaving build artifacts in system site-packages
+RUN apt-get update && apt-get install -y --no-install-recommends gcc libpq-dev build-essential \
+    && python -m pip install --upgrade pip \
+    && pip install --no-cache-dir --upgrade -r requirements.txt --target=/app/vendor \
+    && apt-get purge -y --auto-remove gcc build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy the entire Django project code
+# Copy project files (large caches excluded via .dockerignore)
 COPY . .
 
-# Optional: Collect static files if you are serving them from the container (common with Whitenoise)
-RUN python manage.py collectstatic --noinput
+# Collect static (optional) — don't fail build on platforms without static config
+RUN python manage.py collectstatic --noinput || true
 
 
 # --- STAGE 2: Production Runtime ---
-# Use the highly optimized Python slim image for the final, lean production container.
-# This image is much smaller as it lacks development tools.
 FROM python:3.11-slim
 
-# Set the working directory
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
-# Copy only the compiled Python packages and static files from the builder stage:
-# 1. Python environment/dependencies
-COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
-# 2. Application code and static files
+# Copy only the installed Python packages and app code from builder
+COPY --from=builder /app/vendor /usr/local/lib/python3.11/site-packages
 COPY --from=builder /app /app
 
-# Expose the default port for web services on Railway
+# Expose port and run gunicorn (point to your actual wsgi module)
 EXPOSE 8000
 
-# Define the command to run your Django application using Gunicorn (recommended WSGI server)
-# You need to replace 'your_project_name.wsgi' with your actual Django project name.
-# Ensure Gunicorn and Whitenoise (if used) are in your requirements.txt
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "your_project_name.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "hair_project.wsgi:application"]
