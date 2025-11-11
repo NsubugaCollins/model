@@ -1,0 +1,48 @@
+# Git & metadata
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.egg-info
+*.whl
+*.log
+
+# Virtual envs and environment files
+venv
+.env
+.env.*
+
+# Django / project artifacts and runtime data
+db.sqlite3
+/media
+/media/*
+staticfiles
+staticfiles/*
+media
+static
+/static
+
+# Hugging Face / model caches / big downloads
+.hf
+.cache
+cache
+model_weights
+models
+weights
+
+# Large folders you may have locally
+downloads
+data
+artifacts
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
