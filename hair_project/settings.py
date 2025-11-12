@@ -27,7 +27,10 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-qgzct9oe9t2=3@1#u9gb2
 DEBUG = os.environ.get('DEBUG', 'True').lower() in ('1', 'true', 'yes')
 
 # Allow hosts from env or default to local/localhost
-ALLOWED_HOSTS = ['*']
+#ALLOWED_HOSTS = ['*']
+DEBUG = False
+ALLOWED_HOSTS = ['hair_project.onrender.com']
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 
 
